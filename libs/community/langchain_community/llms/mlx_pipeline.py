@@ -72,7 +72,12 @@ class MLXPipeline(LLM):
           for applying repetition penalty, default is None.
         - top_p (float): The cumulative probability threshold for
           top-p filtering, default is 1.0.
-
+        - min_p (float): The minimum probability threshold for
+          top-p filtering, default is 0.0.
+        - min_tokens_to_keep (int): The minimum number of tokens to keep
+          for top-p filtering, default is 1.
+        - top_k (int): The number of highest probability vocabulary tokens
+          to keep for top-k filtering, default is 0.
     """
 
     model_config = ConfigDict(
@@ -166,8 +171,9 @@ class MLXPipeline(LLM):
         top_p: float = pipeline_kwargs.get("top_p", 1.0)
         min_p: float = pipeline_kwargs.get("min_p", 0.0)
         min_tokens_to_keep: int = pipeline_kwargs.get("min_tokens_to_keep", 1)
+        top_k: int = pipeline_kwargs.get("top_k", 0)
 
-        sampler = make_sampler(temp, top_p, min_p, min_tokens_to_keep)
+        sampler = make_sampler(temp, top_p, min_p, min_tokens_to_keep, top_k)
         logits_processors = make_logits_processors(
             None, repetition_penalty, repetition_context_size
         )
@@ -214,6 +220,7 @@ class MLXPipeline(LLM):
         top_p: float = pipeline_kwargs.get("top_p", 1.0)
         min_p: float = pipeline_kwargs.get("min_p", 0.0)
         min_tokens_to_keep: int = pipeline_kwargs.get("min_tokens_to_keep", 1)
+        top_k: int = pipeline_kwargs.get("top_k", 0)
 
         prompt = self.tokenizer.encode(prompt, return_tensors="np")
 
@@ -223,7 +230,7 @@ class MLXPipeline(LLM):
         detokenizer = self.tokenizer.detokenizer
         detokenizer.reset()
 
-        sampler = make_sampler(temp or 0.0, top_p, min_p, min_tokens_to_keep)
+        sampler = make_sampler(temp or 0.0, top_p, min_p, min_tokens_to_keep, top_k)
 
         logits_processors = make_logits_processors(
             None, repetition_penalty, repetition_context_size

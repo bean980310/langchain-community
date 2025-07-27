@@ -180,6 +180,7 @@ class ChatMLX(BaseChatModel):
         top_p: float = model_kwargs.get("top_p", 1.0)
         min_p: float = model_kwargs.get("min_p", 0.0)
         min_tokens_to_keep: int = model_kwargs.get("min_tokens_to_keep", 1)
+        top_k: int = model_kwargs.get("top_k", 0)
 
         llm_input = self._to_chat_prompt(messages, tokenize=True, return_tensors="np")
 
@@ -187,7 +188,7 @@ class ChatMLX(BaseChatModel):
 
         eos_token_id = self.tokenizer.eos_token_id
 
-        sampler = make_sampler(temp or 0.0, top_p, min_p, min_tokens_to_keep)
+        sampler = make_sampler(temp or 0.0, top_p, min_p, min_tokens_to_keep, top_k)
 
         logits_processors = make_logits_processors(
             None, repetition_penalty, repetition_context_size
